@@ -4,11 +4,10 @@
 #include <ESP32Encoder.h>
 #include <ctype.h>
 #include <Wire.h>
-#include <Adafruit_GFX.h>
+//#include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 //setup display (epaper) scl=18 sda=23 (misslabled on board)
 GxEPD2_BW<GxEPD2_154_D67, GxEPD2_154_D67::HEIGHT> epaper(GxEPD2_154_D67(/*CS*/ 5, /*DC*/ 4, /*RST*/ 19, /*BUSY*/ 15)); // GDEH0154D67 200x200, SSD1681
-
 //oled
 Adafruit_SSD1306 oled(128, 32, &Wire, -1);
 
