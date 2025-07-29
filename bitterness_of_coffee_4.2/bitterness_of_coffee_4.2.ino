@@ -31,19 +31,19 @@ struct subMenuState{
   int lastPage = -1;
   int lastSelected = -1; //hand
 };
-subMenuState = submenu;
+subMenuState submenu;
 
 
 struct uiState {
   enum screenState {
-    SCREEN_HOME,
-    SCREEN_MENU,
     SCREEN_PLAYLISTS,
     SCREEN_SHUFFLE,
     SCREEN_LIKED,
     SCREEN_SETTINGS,
     SCREEN_THEMES,
-    SCREEN_ABOUT
+    SCREEN_ABOUT,
+    SCREEN_HOME,
+    SCREEN_MENU
   };
   screenState currentScreen = SCREEN_HOME;
   bool isHibernateing = false;
@@ -143,6 +143,10 @@ void makeBtnDo(int btnindex){
       break;
     case 2:
       Serial.println("rotary switch pressed");
+      if (ui.currentScreen == uiState::SCREEN_MENU){
+        ui.currentScreen = static_cast<uiState::screenState>(newPos);
+        menuSystem();   
+      }
       break;
     default:
       Serial.println("what are you even pressing??");
@@ -206,31 +210,37 @@ void hibernation(){
 }
 
 void menuSystem(){
-  if (menu.currentPage == menu.lastPage) return;
-  Serial.println("menuSystem running");
-  epaper.clearScreen();
-  epaper.setFullWindow();
-  epaper.setTextColor(GxEPD_BLACK);
-  epaper.fillScreen(GxEPD_WHITE);
-  epaper.firstPage();
-  do{
-      epaper.drawLine(30-6, 0, 30-6, 200, GxEPD_BLACK);
+  if (screenState == uiState::SCREEN_MENU){
+    if (menu.currentPage == menu.lastPage) return;
+    Serial.println("menuSystem running");
+    epaper.clearScreen();
+    epaper.setFullWindow();
+    epaper.setTextColor(GxEPD_BLACK);
+    epaper.fillScreen(GxEPD_WHITE);
+    epaper.firstPage();
+    do{
+        epaper.drawLine(30-6, 0, 30-6, 200, GxEPD_BLACK);
 
-      if (menu.currentPage == 1){
-        for (int i = 3; i < 6; i++){
-          epaper.drawInvertedBitmap(30, (i - 3) * 64 +4, BM_allArray[i], 64, 64, GxEPD_BLACK);
+        if (menu.currentPage == 1){
+          for (int i = 3; i < 6; i++){
+            epaper.drawInvertedBitmap(30, (i - 3) * 64 +4, BM_allArray[i], 64, 64, GxEPD_BLACK);
+          }
+        }else{
+          for (int i = 0; i < 3; i++){
+          epaper.drawInvertedBitmap(30, i * 64 +4, BM_allArray[i], 64, 64, GxEPD_BLACK);
+          }
         }
-      }else{
-        for (int i = 0; i < 3; i++){
-         epaper.drawInvertedBitmap(30, i * 64 +4, BM_allArray[i], 64, 64, GxEPD_BLACK);
-        }
-      }
-  }while (epaper.nextPage());
+    }while (epaper.nextPage());
 
-  //reset hand if page has been changed
-  menu.lastSelected = 1;
-  oldPos = 0;
-  updateMenuHand(0);
+    //reset hand if page has been changed
+    menu.lastSelected = 1;
+    oldPos = 0;
+    updateMenuHand(0); //need to make btn select current menu so that it will be in the submenu
+  }else{
+    //submenu
+    serial.println(lastSelected);
+  }
+
 }
 
 void updateMenuHand(int newPos){
