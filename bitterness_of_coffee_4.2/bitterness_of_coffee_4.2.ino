@@ -15,23 +15,33 @@ Adafruit_SSD1306 oled(128, 32, &Wire, -1);
 ESP32Encoder enc;
 long oldPos= -999; //ensures first readout happens
 
-//settings menu
-const char* menuItems[] = {"Playlists", "Shuffle", "Liked", "Settings","Themes", "About"};
-const int menuLength = 6; 
-int currentPage = 0;
-int lastPage = -1;
-int lastSelected = -1; //hand
-enum screenState {
-  SCREEN_HOME,
-  SCREEN_MENU,
-  SCREEN_PLAYLISTS,
-  SCREEN_SHUFFLE,
-  SCREEN_LIKED,
-  SCREEN_SETTINGS,
-  SCREEN_THEMES,
-  SCREEN_ABOUT
+struct menuState{
+  const char* items[6] = {"Playlists", "Shuffle", "Liked", "Settings","Themes", "About"};
+  const int length = 6; 
+  int currentPage = 0;
+  int lastPage = -1;
+  int lastSelected = -1; //hand
 };
-screenState currentScreen = SCREEN_HOME;
+menuState menu;
+
+struct uiState {
+  enum screenState {
+    SCREEN_HOME,
+    SCREEN_MENU,
+    SCREEN_PLAYLISTS,
+    SCREEN_SHUFFLE,
+    SCREEN_LIKED,
+    SCREEN_SETTINGS,
+    SCREEN_THEMES,
+    SCREEN_ABOUT
+  };
+  screenState currentScreen = SCREEN_HOME;
+  bool isHibernateing = false;
+  unsigned long lastActivityTime = 0;
+  const unsigned long hibernationDelay = 5UL * 60 * 1000; //5 mins
+
+};
+uiState ui;
 
 //io pins
 const int volumepin = 34;
@@ -43,12 +53,6 @@ int btnstate[3] = {0};
 int lastBtnState[3] = {0};
 unsigned long lastDebounceTime[3] = {0};
 unsigned long debounceDelay = 50;
-
-//hibernation//
-unsigned long lastActivityTime = 0;
-const unsigned long hibernationDelay = 5UL * 60 * 1000; //5 mins
-//const unsigned long hibernationDelay = 5UL * 1000; //5 secs testing
-bool isHibernateing = false;
 
 void setup() {
   Serial.begin(115200);
@@ -115,12 +119,12 @@ void makeBtnDo(int btnindex){
   switch (btnindex){
     case 0:
       Serial.println("switch1 pressed");
-      currentScreen = SCREEN_MENU;
+      ui.currentScreen = uiState::SCREEN_MENU;
       menuSystem();
       break;
     case 1:
       Serial.println("switch2 pressed");
-      currentScreen = SCREEN_HOME;
+      ui.currentScreen = uiState::SCREEN_HOME;
       home();
       break;
     case 2:
@@ -161,7 +165,7 @@ void drawVerticalText(const char* text, int16_t x, int16_t yStart, int16_t spaci
 }
 
 void hibernation(){
-  if(isHibernateing == true){
+  if(ui.isHibernateing == true){
     epaper.setPartialWindow(170, 0, 30, 20);
     epaper.firstPage();
     do{
@@ -181,14 +185,14 @@ void hibernation(){
     do{
       epaper.fillRect(170, 0, 30, 20, GxEPD_WHITE);
     }while (epaper.nextPage());
-    lastActivityTime = millis();
+    ui.lastActivityTime = millis();
     Serial.println("debug: exited hibernation");
     oled.ssd1306_command(SSD1306_DISPLAYON);
   }
 }
 
 void menuSystem(){
-  if (currentPage == lastPage) return;
+  if (menu.currentPage == menu.lastPage) return;
   Serial.println("menuSystem running");
   epaper.clearScreen();
   epaper.setFullWindow();
@@ -198,7 +202,7 @@ void menuSystem(){
   do{
       epaper.drawLine(30-6, 0, 30-6, 200, GxEPD_BLACK);
 
-      if (currentPage == 1){
+      if (menu.currentPage == 1){
         for (int i = 3; i < 6; i++){
           epaper.drawInvertedBitmap(30, (i - 3) * 64 +4, BM_allArray[i], 64, 64, GxEPD_BLACK);
         }
@@ -210,15 +214,15 @@ void menuSystem(){
   }while (epaper.nextPage());
 
   //reset hand if page has been changed
-  lastSelected = 1;
+  menu.lastSelected = 1;
   oldPos = 0;
   updateMenuHand(0);
 }
 
 void updateMenuHand(int newPos){
-  if(newPos == lastSelected) return; //stops redrawing if not needed
+  if(newPos == menu.lastSelected) return; //stops redrawing if not needed
 
-  if(lastSelected != -1){
+  if(menu.lastSelected != -1){
     //erase  vertical text
     epaper.setPartialWindow(0, 0, 22, 200);
     epaper.firstPage();
@@ -229,7 +233,7 @@ void updateMenuHand(int newPos){
     epaper.setPartialWindow(100, 0, 100, 200);
     epaper.firstPage();
     do{
-      epaper.fillRect(100, 4 + (lastSelected % 3) * 64, 100, 64, GxEPD_WHITE);
+      epaper.fillRect(100, 4 + (menu.lastSelected % 3) * 64, 100, 64, GxEPD_WHITE);
     }while (epaper.nextPage());
   }
   //draw hand
@@ -243,10 +247,10 @@ void updateMenuHand(int newPos){
   epaper.setPartialWindow(0, 0, 22, 200);
   epaper.firstPage();
   do{
-    drawVerticalText(menuItems[newPos], 4, 0, 20);
+    drawVerticalText(menu.items[newPos], 4, 0, 20);
   }while (epaper.nextPage());
 
-  lastSelected = newPos;
+  menu.lastSelected = newPos;
 }
 
 void loop() {
@@ -262,10 +266,10 @@ void loop() {
         btnstate[i] = reading;
 
         if (btnstate[i] == LOW){
-          lastActivityTime = millis();
+          ui.lastActivityTime = millis();
 
-          if (isHibernateing){
-            isHibernateing = false;
+          if (ui.isHibernateing){
+            ui.isHibernateing = false;
             hibernation(); //if btn pressed and is hibernating kicks you out of hibernation
           } else{
             makeBtnDo(i);
@@ -276,19 +280,19 @@ void loop() {
     lastBtnState[i] = reading; //this caused so much wasted time because i forgot it :()
   } 
   //check for hibernation timeout
-  if(!isHibernateing && (millis() - lastActivityTime > hibernationDelay)){
-    isHibernateing = true;
+  if(!ui.isHibernateing && (millis() - ui.lastActivityTime > ui.hibernationDelay)){
+    ui.isHibernateing = true;
     hibernation();
   }
 
   //rotary check
-  if (currentScreen == SCREEN_MENU){
-    int newPos = ((enc.getCount() % menuLength) + menuLength) % menuLength; //+0 to +5 //+6%6; removes negaive numbers
+  if (ui.currentScreen == uiState::SCREEN_MENU){
+    int newPos = ((enc.getCount() % menu.length) + menu.length) % menu.length; //+0 to +5 //+6%6; removes negaive numbers
     int newPage = newPos / 3;
-    if (newPage != currentPage){
-      Serial.printf("page change from %d to %d\n", currentPage, newPage);
-      lastPage = currentPage;
-      currentPage = newPage;
+    if (newPage != menu.currentPage){
+      Serial.printf("page change from %d to %d\n", menu.currentPage, newPage);
+      menu.lastPage = menu.currentPage;
+      menu.currentPage = newPage;
       menuSystem();
     }
 
