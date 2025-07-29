@@ -24,6 +24,16 @@ struct menuState{
 };
 menuState menu;
 
+struct subMenuState{
+  const char* settingsMenuItems[] = {"bluetoothEnabled", "Sound Effects", "Back"};
+  const int settingsMenuLength = 3;
+  int currentPage = 0;
+  int lastPage = -1;
+  int lastSelected = -1; //hand
+};
+subMenuState = submenu;
+
+
 struct uiState {
   enum screenState {
     SCREEN_HOME,
@@ -39,9 +49,13 @@ struct uiState {
   bool isHibernateing = false;
   unsigned long lastActivityTime = 0;
   const unsigned long hibernationDelay = 5UL * 60 * 1000; //5 mins
-
 };
 uiState ui;
+
+//chanagebale bools
+bool shuffleEnabled = false;
+bool soundEffects = true;
+bool bluetoothEnabled = false;
 
 //io pins
 const int volumepin = 34;
