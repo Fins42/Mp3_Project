@@ -1,72 +1,7 @@
 //fully coded by fin! Well all but the bits marked chatgpt...
-#include <GxEPD2_BW.h>
 #include <bitmaps.h>
-#include <ESP32Encoder.h>
-#include <ctype.h>
-#include <Wire.h>
-//#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
-//setup display (epaper) scl=18 sda=23 (misslabled on board)
-GxEPD2_BW<GxEPD2_154_D67, GxEPD2_154_D67::HEIGHT> epaper(GxEPD2_154_D67(/*CS*/ 5, /*DC*/ 4, /*RST*/ 19, /*BUSY*/ 15)); // GDEH0154D67 200x200, SSD1681
-//oled
-Adafruit_SSD1306 oled(128, 32, &Wire, -1);
-
-//encoder
-ESP32Encoder enc;
-long oldPos= -999; //ensures first readout happens
-
-struct menuState{
-  const char* items[6] = {"Playlists", "Shuffle", "Liked", "Settings","Themes", "About"};
-  const int length = 6; 
-  int currentPage = 0;
-  int lastPage = -1;
-  int lastSelected = -1; //hand
-};
-menuState menu;
-
-struct subMenuState{
-  const char* settingsMenuItems[] = {"bluetoothEnabled", "Sound Effects", "Back"};
-  const int settingsMenuLength = 3;
-  int currentPage = 0;
-  int lastPage = -1;
-  int lastSelected = -1; //hand
-};
-subMenuState submenu;
-
-
-struct uiState {
-  enum screenState {
-    SCREEN_PLAYLISTS,
-    SCREEN_SHUFFLE,
-    SCREEN_LIKED,
-    SCREEN_SETTINGS,
-    SCREEN_THEMES,
-    SCREEN_ABOUT,
-    SCREEN_HOME,
-    SCREEN_MENU
-  };
-  screenState currentScreen = SCREEN_HOME;
-  bool isHibernateing = false;
-  unsigned long lastActivityTime = 0;
-  const unsigned long hibernationDelay = 5UL * 60 * 1000; //5 mins
-};
-uiState ui;
-
-//chanagebale bools
-bool shuffleEnabled = false;
-bool soundEffects = true;
-bool bluetoothEnabled = false;
-
-//io pins
-const int volumepin = 34;
-const int btnpins[] = {12, 13, 14};
-const int btnnum = 3;
-
-//button stuff//
-int btnstate[3] = {0};
-int lastBtnState[3] = {0};
-unsigned long lastDebounceTime[3] = {0};
-unsigned long debounceDelay = 50;
+#include <hibernation.h>
+#include <globals.h>
 
 void setup() {
   Serial.begin(115200);
@@ -143,10 +78,6 @@ void makeBtnDo(int btnindex){
       break;
     case 2:
       Serial.println("rotary switch pressed");
-      if (ui.currentScreen == uiState::SCREEN_MENU){
-        ui.currentScreen = static_cast<uiState::screenState>(newPos);
-        menuSystem();   
-      }
       break;
     default:
       Serial.println("what are you even pressing??");
@@ -182,35 +113,9 @@ void drawVerticalText(const char* text, int16_t x, int16_t yStart, int16_t spaci
   }
 }
 
-void hibernation(){
-  if(ui.isHibernateing == true){
-    epaper.setPartialWindow(170, 0, 30, 20);
-    epaper.firstPage();
-    do{
-      epaper.setTextColor(GxEPD_BLACK);
-      epaper.setCursor(172, 4);
-      epaper.setTextSize(2);
-      epaper.print("zz");
-      epaper.hibernate();
-      Serial.println("debug: entered hibernation");
-    }while (epaper.nextPage());
-    oled.ssd1306_command(SSD1306_DISPLAYOFF);
-  }
-  else{
-    //clear zz
-    epaper.setPartialWindow(170, 0, 30, 20);
-    epaper.firstPage();
-    do{
-      epaper.fillRect(170, 0, 30, 20, GxEPD_WHITE);
-    }while (epaper.nextPage());
-    ui.lastActivityTime = millis();
-    Serial.println("debug: exited hibernation");
-    oled.ssd1306_command(SSD1306_DISPLAYON);
-  }
-}
 
 void menuSystem(){
-  if (screenState == uiState::SCREEN_MENU){
+  if (ui.currentScreen == uiState::SCREEN_MENU){
     if (menu.currentPage == menu.lastPage) return;
     Serial.println("menuSystem running");
     epaper.clearScreen();
@@ -236,9 +141,6 @@ void menuSystem(){
     menu.lastSelected = 1;
     oldPos = 0;
     updateMenuHand(0); //need to make btn select current menu so that it will be in the submenu
-  }else{
-    //submenu
-    serial.println(lastSelected);
   }
 
 }
