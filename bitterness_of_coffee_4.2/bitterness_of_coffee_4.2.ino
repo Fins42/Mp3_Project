@@ -84,27 +84,25 @@ void makeBtnDo(int btnindex){
         subMenuSystem();
       } else if(ui.currentScreen == uiState::SCREEN_SUBMENU){
         subMenuState& activeSubmenu = submenus[currentSubmenuIndex];
-        const char8 selectedItem = subMenuItems[activeSubmenu.lastSelected];
+        const char* selectedItem = activeSubmenu.subMenuItems[activeSubmenu.lastSelected];
 
         if(strcmp(selectedItem, "Back") == 0){
           ui.currentScreen = uiState::SCREEN_MENU;
-          menuSystem()
+          menuSystem();
         }else {
           //toggle flags
           if(strcmp(selectedItem, "Bluetooth") == 0){
             bluetoothEnabled = !bluetoothEnabled;
-            Serial.printf("Bluetooth is now %s\n", bluetoothEnabled ? "ON" : "OFF")
-          }else if(trcmp(selectedItem, "Sound FX") == 0){
+            Serial.printf("Bluetooth is now %s\n", bluetoothEnabled ? "ON" : "OFF");
+          }else if(strcmp(selectedItem, "Sound FX") == 0){
             soundEffects = !soundEffects;
-            Serial.printf("SoundFX is now %s\n", soundEffects ? "ON" : "OFF")
-          }else if(trcmp(selectedItem, "Enable Shuffle") == 0){
-            soundEffects = !soundEffects;
+            Serial.printf("SoundFX is now %s\n", soundEffects ? "ON" : "OFF");
+          }else if(strcmp(selectedItem, "Enable Shuffle") == 0){
             shuffleEnabled = true;
-            Serial.println("shuffle is now enabled")
-          }else if(trcmp(selectedItem, "Enable Disabled") == 0){
-            soundEffects = !soundEffects;
+            Serial.println("shuffle is now enabled");
+          }else if(strcmp(selectedItem, "Enable Disabled") == 0){
             shuffleEnabled = false;
-            Serial.println("shuffle is now disabled")
+            Serial.println("shuffle is now disabled");
           }
           subMenuSystem();
         }
@@ -144,70 +142,6 @@ void drawVerticalText(const char* text, int16_t x, int16_t yStart, int16_t spaci
   }
 }
 
-
-void menuSystem(){
-  if (ui.currentScreen == uiState::SCREEN_MENU){
-    if (menu.currentPage == menu.lastPage) return;
-    Serial.println("menuSystem running");
-    epaper.clearScreen();
-    epaper.setFullWindow();
-    epaper.setTextColor(GxEPD_BLACK);
-    epaper.fillScreen(GxEPD_WHITE);
-    epaper.firstPage();
-    do{
-        epaper.drawLine(30-6, 0, 30-6, 200, GxEPD_BLACK);
-
-        if (menu.currentPage == 1){
-          for (int i = 3; i < 6; i++){
-            epaper.drawInvertedBitmap(30, (i - 3) * 64 +4, BM_allArray[i], 64, 64, GxEPD_BLACK);
-          }
-        }else{
-          for (int i = 0; i < 3; i++){
-          epaper.drawInvertedBitmap(30, i * 64 +4, BM_allArray[i], 64, 64, GxEPD_BLACK);
-          }
-        }
-    }while (epaper.nextPage());
-
-    //reset hand if page has been changed
-    menu.lastSelected = 1;
-    oldPos = 0;
-    updateMenuHand(0); //need to make btn select current menu so that it will be in the submenu
-  }
-}
-
-void subMenuSystem(){ //thx chatgpt 
-  if (ui.currentScreen != uistate::SCREEN_SUBMENU) return;
-
-  subMenuState& activeSubmenu = submenus[currentSubmenuIndex];
-
-  epaper.setFullWindow();
-  epaper.firstPage();
-  do {
-    epaper.fillScreen(GxEPD_WHITE);
-
-    //divider
-    epaper.drawLine(30-6, 0, 30-6, 200, GxEPD_BLACK);#
-
-    epaper.setTextSize(2);
-    for (int i = 0; i < activeSubmenu.length; i++){
-      int y = 20 + i 8 30
-
-      if(i == activeSubmenu.lastSelected){
-        //invert tedxt
-        epaper.fillRect(30, y - 5, 160, 25, GxEPD_BLACK);
-        epaper.setTextColor(GxEPD_WHITE)
-      }else {
-        epaper.setTextColor(GxEPD_BLACK);
-      }
-
-      epaepr.setCursor(40, y);
-      epaper.print(activeSubmenu.subMenuItems[i]);
-
-      drawVerticalText(menu.items[currentSubmenuIndex], 4, 0, 20);
-    }while (epaper.nextPage());
-  }
-}
-
 void updateMenuHand(int newPos){
   if(newPos == menu.lastSelected) return; //stops redrawing if not needed
   if(menu.lastSelected != -1){
@@ -239,6 +173,83 @@ void updateMenuHand(int newPos){
   }while (epaper.nextPage());
 
   menu.lastSelected = newPos;
+}
+
+void menuSystem(){
+  if (ui.currentScreen == uiState::SCREEN_MENU){
+    if (menu.currentPage == menu.lastPage) return;
+    Serial.println("menuSystem running");
+    epaper.clearScreen();
+    epaper.setFullWindow();
+    epaper.setTextColor(GxEPD_BLACK);
+    epaper.fillScreen(GxEPD_WHITE);
+    epaper.firstPage();
+    do{
+        epaper.drawLine(30-6, 0, 30-6, 200, GxEPD_BLACK);
+
+        if (menu.currentPage == 1){
+          for (int i = 3; i < 6; i++){
+            epaper.drawInvertedBitmap(30, (i - 3) * 64 +4, BM_allArray[i], 64, 64, GxEPD_BLACK);
+          }
+        }else{
+          for (int i = 0; i < 3; i++){
+          epaper.drawInvertedBitmap(30, i * 64 +4, BM_allArray[i], 64, 64, GxEPD_BLACK);
+          }
+        }
+    }while (epaper.nextPage());
+
+    //reset hand if page has been changed
+    menu.lastSelected = 1;
+    oldPos = 0;
+    updateMenuHand(0);
+  }
+}
+
+void subMenuSystem(){ //thx chatgpt 
+  if (ui.currentScreen != uiState::SCREEN_SUBMENU) return;
+
+  subMenuState& activeSubmenu = submenus[currentSubmenuIndex];
+  
+  epaper.setFullWindow();
+  epaper.firstPage();
+  do {
+    epaper.fillScreen(GxEPD_WHITE);
+
+    //divider
+    epaper.drawLine(30-6, 0, 30-6, 200, GxEPD_BLACK);
+
+    epaper.setTextSize(2);
+    for (int i = 0; i < activeSubmenu.length; i++){
+      int y = 20 + i * 30;
+      epaper.setTextColor(GxEPD_BLACK);
+      epaper.setCursor(40, y);
+      epaper.print(activeSubmenu.subMenuItems[i]);
+    }
+    drawVerticalText(menu.items[currentSubmenuIndex], 4, 0, 20);
+  }while (epaper.nextPage());
+
+  invertSubmenu(activeSubmenu.lastSelected, true);
+  oldPos = activeSubmenu.lastSelected;
+}
+
+void invertSubmenu(int index, bool highlight){
+  int y = 20 + index * 30 - 5;
+  int w = 160;
+  int h = 25;
+
+  epaper.setPartialWindow(30, y, w, h);
+  epaper.firstPage();
+  do {
+    if (highlight) {
+      epaper.fillRect(30, y, w, h, GxEPD_BLACK);
+      epaper.setTextColor(GxEPD_WHITE);
+    } else {
+      epaper.fillRect(30, y, w, h, GxEPD_WHITE);
+      epaper.setTextColor(GxEPD_BLACK);
+    }
+    epaper.setCursor(40, y + 5);
+    epaper.print(submenus[currentSubmenuIndex].subMenuItems[index]);
+  } while (epaper.nextPage());
 }
 
 void loop() {
@@ -280,7 +291,7 @@ void loop() {
     }
 
     if (newPos != oldPos){
-      //updateInvertTxt(newPos);
+      updateMenuHand(newPos);
       oldPos = newPos;
     }
   }
@@ -289,7 +300,8 @@ void loop() {
     subMenuState& submenu = submenus[currentSubmenuIndex];
     int newPos = ((enc.getCount() % submenu.length) + submenu.length) % submenu.length;
     if (newPos != oldPos){
-      updateMenuHand(newPos);
+      invertSubmenu(oldPos, false);
+      invertSubmenu(newPos, true);
       submenu.lastSelected = newPos;
       oldPos = newPos;
     }
