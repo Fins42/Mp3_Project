@@ -82,14 +82,31 @@ void makeBtnDo(int btnindex){
         currentSubmenuIndex = menu.lastSelected;
         ui.currentScreen = uiState::SCREEN_SUBMENU;
         subMenuSystem();
-      }else if (ui.currentScreen == uiState::SCREEN_SUBMENU){
-        if (submenus[currentSubmenuIndex].lastSelected == submenus[currentSubmenuIndex].length - 1){
+      } else if(ui.currentScreen == uiState::SCREEN_SUBMENU){
+        subMenuState& activeSubmenu = submenus[currentSubmenuIndex];
+        const char8 selectedItem = subMenuItems[activeSubmenu.lastSelected];
+
+        if(strcmp(selectedItem, "Back") == 0){
           ui.currentScreen = uiState::SCREEN_MENU;
-          menuSystem();
-        }
-        if (strcmp(submenus[currentSubmenuIndex].subMenuItems[submenus[currentSubmenuIndex].lastSelected], "Back") == 0) {
-        ui.currentScreen = uiState::SCREEN_MENU;
-        menuSystem();
+          menuSystem()
+        }else {
+          //toggle flags
+          if(strcmp(selectedItem, "Bluetooth") == 0){
+            bluetoothEnabled = !bluetoothEnabled;
+            Serial.printf("Bluetooth is now %s\n", bluetoothEnabled ? "ON" : "OFF")
+          }else if(trcmp(selectedItem, "Sound FX") == 0){
+            soundEffects = !soundEffects;
+            Serial.printf("SoundFX is now %s\n", soundEffects ? "ON" : "OFF")
+          }else if(trcmp(selectedItem, "Enable Shuffle") == 0){
+            soundEffects = !soundEffects;
+            shuffleEnabled = true;
+            Serial.println("shuffle is now enabled")
+          }else if(trcmp(selectedItem, "Enable Disabled") == 0){
+            soundEffects = !soundEffects;
+            shuffleEnabled = false;
+            Serial.println("shuffle is now disabled")
+          }
+          subMenuSystem();
         }
       }
       break;
