@@ -26,7 +26,7 @@ void setup() {
   home();
   oled.display();
   oled.clearDisplay();
-  oled.setTextSize(1);  // Text size
+  oled.setTextSize(1); 
   oled.setTextColor(SSD1306_WHITE);
   oled.setCursor(10, 10);
   oled.println("Goodnight World!");
@@ -78,6 +78,20 @@ void makeBtnDo(int btnindex){
       break;
     case 2:
       Serial.println("rotary switch pressed");
+      if (ui.currentScreen == uiState::SCREEN_MENU){
+        currentSubmenuIndex = menu.lastSelected;
+        ui.currentScreen = uiState::SCREEN_SUBMENU;
+        subMenuSystem();
+      }else if (ui.currentScreen == uiState::SCREEN_SUBMENU){
+        if (submenus[currentSubmenuIndex].lastSelected == submenus[currentSubmenuIndex].length - 1){
+          ui.currentScreen = uiState::SCREEN_MENU;
+          menuSystem();
+        }
+        if (strcmp(submenus[currentSubmenuIndex].subMenuItems[submenus[currentSubmenuIndex].lastSelected], "Back") == 0) {
+        ui.currentScreen = uiState::SCREEN_MENU;
+        menuSystem();
+        }
+      }
       break;
     default:
       Serial.println("what are you even pressing??");
@@ -142,12 +156,43 @@ void menuSystem(){
     oldPos = 0;
     updateMenuHand(0); //need to make btn select current menu so that it will be in the submenu
   }
+}
 
+void subMenuSystem(){ //thx chatgpt 
+  if (ui.currentScreen != uistate::SCREEN_SUBMENU) return;
+
+  subMenuState& activeSubmenu = submenus[currentSubmenuIndex];
+
+  epaper.setFullWindow();
+  epaper.firstPage();
+  do {
+    epaper.fillScreen(GxEPD_WHITE);
+
+    //divider
+    epaper.drawLine(30-6, 0, 30-6, 200, GxEPD_BLACK);#
+
+    epaper.setTextSize(2);
+    for (int i = 0; i < activeSubmenu.length; i++){
+      int y = 20 + i 8 30
+
+      if(i == activeSubmenu.lastSelected){
+        //invert tedxt
+        epaper.fillRect(30, y - 5, 160, 25, GxEPD_BLACK);
+        epaper.setTextColor(GxEPD_WHITE)
+      }else {
+        epaper.setTextColor(GxEPD_BLACK);
+      }
+
+      epaepr.setCursor(40, y);
+      epaper.print(activeSubmenu.subMenuItems[i]);
+
+      drawVerticalText(menu.items[currentSubmenuIndex], 4, 0, 20);
+    }while (epaper.nextPage());
+  }
 }
 
 void updateMenuHand(int newPos){
   if(newPos == menu.lastSelected) return; //stops redrawing if not needed
-
   if(menu.lastSelected != -1){
     //erase  vertical text
     epaper.setPartialWindow(0, 0, 22, 200);
@@ -205,12 +250,7 @@ void loop() {
     }
     lastBtnState[i] = reading; //this caused so much wasted time because i forgot it :()
   } 
-  //check for hibernation timeout
-  if(!ui.isHibernateing && (millis() - ui.lastActivityTime > ui.hibernationDelay)){
-    ui.isHibernateing = true;
-    hibernation();
-  }
-
+  hibernationTimeout(); //checks for timeout
   //rotary check
   if (ui.currentScreen == uiState::SCREEN_MENU){
     int newPos = ((enc.getCount() % menu.length) + menu.length) % menu.length; //+0 to +5 //+6%6; removes negaive numbers
@@ -223,7 +263,17 @@ void loop() {
     }
 
     if (newPos != oldPos){
+      //updateInvertTxt(newPos);
+      oldPos = newPos;
+    }
+  }
+
+  if (ui.currentScreen == uiState::SCREEN_SUBMENU){
+    subMenuState& submenu = submenus[currentSubmenuIndex];
+    int newPos = ((enc.getCount() % submenu.length) + submenu.length) % submenu.length;
+    if (newPos != oldPos){
       updateMenuHand(newPos);
+      submenu.lastSelected = newPos;
       oldPos = newPos;
     }
   }

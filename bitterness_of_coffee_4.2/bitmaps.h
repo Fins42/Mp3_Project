@@ -161,15 +161,13 @@ const unsigned char BM_hand [] PROGMEM = {
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xf0, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 
 	0xff, 0xff, 0xf0, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xf0
 };
-
-// Array of all bitmaps for convenience. (Total bytes used to store images in PROGMEM = 528)
-const int BM_allArray_LEN = 6;
+const int BM_allArray_LEN = 6; //main settings display
 const unsigned char* BM_allArray[6] = {
+	//screen 1
 	BM_playlist_logo,
   BM_heart_logo,
-  BM_heart_logo,
-
-
+  BM_heart_logo, 
+	//screen 2
   BM_settings_logo,
 	BM_heart_logo,
 	BM_heart_logo

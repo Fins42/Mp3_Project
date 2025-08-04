@@ -25,13 +25,14 @@ struct menuState{
 extern menuState menu;
 
 struct subMenuState{
-  const char** settingsMenuItems;
-  const int settingsMenuLength;
+  const char* subMenuItems[6];
+  const int length;
   int currentPage;
   int lastPage;
   int lastSelected;
 };
-extern subMenuState submenu;
+extern subMenuState submenus[6];
+extern int currentSubmenuIndex;
 
 struct uiState {
   enum screenState {
@@ -42,7 +43,8 @@ struct uiState {
     SCREEN_THEMES,
     SCREEN_ABOUT,
     SCREEN_HOME,
-    SCREEN_MENU
+    SCREEN_MENU,
+    SCREEN_SUBMENU
   };
   screenState currentScreen;
   bool isHibernateing;

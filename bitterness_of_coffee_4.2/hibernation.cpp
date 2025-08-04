@@ -26,3 +26,12 @@ void hibernation(){
     oled.ssd1306_command(SSD1306_DISPLAYON);
   }
 }
+
+void hibernationTimeout(){
+  //check for hibernation timeout
+  if(!ui.isHibernateing && (millis() - ui.lastActivityTime > ui.hibernationDelay)){
+    ui.isHibernateing = true;
+    hibernation();
+  }
+
+}

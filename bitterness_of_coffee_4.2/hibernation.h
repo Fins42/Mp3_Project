@@ -1,4 +1,6 @@
 #pragma once
 
 #include "globals.h"
-void hibernation(); //sooo empty
+void hibernation();
+void hibernationTimeout();
+//sooo empty

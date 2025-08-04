@@ -16,20 +16,21 @@ menuState menu = {
   -1
 };
 
-const char* settingsMenuItems[] = {"bluetoothEnabled", "Sound Effects", "Back"};
-subMenuState submenu = {
-  settingsMenuItems,
-  3,
-  0,
-  -1,
-  -1
+subMenuState submenus[6] = { //lil help from chatgpt thx :)
+  { {"Playlist 1", "Playlist 2", "Back"}, 3, 0, -1, -1 },
+  { {"Enable Shuffle", "Disable Shuffle", "Back"}, 3, 0, -1, -1 },
+  { {"Track 1", "Track 2", "Track 3", "Back"}, 4, 0, -1, -1 },
+  { {"Bluetooth", "Sound FX", "Reset", "Back"}, 4, 0, -1, -1 },
+  { {"Dark", "Light", "Back"}, 3, 0, -1, -1 },
+  { {"v4.2", "Credits", "Back"}, 3, 0, -1, -1 }
 };
+int currentSubmenuIndex = 0; // globally tracks which submenu is active
 
 uiState ui = {
-  uiState::SCREEN_HOME,
+  ui.SCREEN_HOME,
   false,
   0,
-  5UL * 60 * 1000
+  5UL * 60 * 1000 //5-mins
 };
 
 // IO PINS
