@@ -1,2 +1,0 @@
-
-declare the encoder first then change the menu lent=gth when the screen changes rather than declareing the encoder every time.
