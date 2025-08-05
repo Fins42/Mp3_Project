@@ -1,7 +1,7 @@
-# Mp3_Project
+# Pocket Player
 
 mp3 player made with the esp32 and an epaper display -CURRENTLY WORK IN PROGRESS
-The .ino is named after what i craved at 1am when i started this project
+The .ino is named after what i craved at 1am when i started this project - i got to version 4.2 before realising i should probably back this up so i learned github
 
 This is my first actual project that im sticking to -i barely know how to code (learning as this project gose on bit by bit) so it wont look pretty but hey for my first project its looking pretty good even if its not playing any mp3s yet... Thanks for reading my little rant heres the current (ish) version of it:
 
