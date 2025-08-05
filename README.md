@@ -7,10 +7,10 @@ This is my first actual project that im sticking to -i barely know how to code (
 
 <img src="https://github.com/Fins42/Mp3_Project/blob/main/Images/githubImg1.jpg" alt="mp3 player img sorta looks like a panda" style="width:40%; height:auto;">
 
-what components im useing:
+**_what components im useing:_**
 
 - ESP32 DEV modual
-- W̶e̶ ̶A̶c̶t̶ ̶S̶t̶u̶d̶i̶o̶ ̶E̶p̶a̶p̶e̶r̶ ̶1̶.̶5̶4̶" waveshare 1.54" epaper (changed due to refresh rate)
+- ~~We Act Studio 1.54"Epaper~~ waveshare 1.54" epaper (changed due to refresh rate)
 - 0.91" oled modual
 - slide pot
 - generic Rotary encoder
@@ -19,4 +19,4 @@ what components im useing:
 - generic SD card board
 - 103450 LIPO battery
 
-(i probaly forgot something but thats the basic list)
+_(i probaly forgot something but thats the basic list)_
