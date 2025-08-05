@@ -253,7 +253,7 @@ void invertSubmenu(int index, bool highlight){
 }
 
 void loop() {
-  //hibernation
+  
   for (int i = 0; i < btnnum; i++){
     int reading = digitalRead(btnpins[i]);
     if (reading != lastBtnState[i]){
