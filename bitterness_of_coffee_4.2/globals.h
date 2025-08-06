@@ -8,6 +8,7 @@
 
 //setup display (epaper) scl=18 sda=23 (misslabled on board)
 extern GxEPD2_BW<GxEPD2_154_D67, GxEPD2_154_D67::HEIGHT> epaper;
+
 //oled
 extern Adafruit_SSD1306 oled;
 
@@ -36,12 +37,6 @@ extern int currentSubmenuIndex;
 
 struct uiState {
   enum screenState {
-    SCREEN_PLAYLISTS,
-    SCREEN_SHUFFLE,
-    SCREEN_LIKED,
-    SCREEN_SETTINGS,
-    SCREEN_THEMES,
-    SCREEN_ABOUT,
     SCREEN_HOME,
     SCREEN_MENU,
     SCREEN_SUBMENU

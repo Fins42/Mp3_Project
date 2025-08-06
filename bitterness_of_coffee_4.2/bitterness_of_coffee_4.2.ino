@@ -10,7 +10,7 @@ void setup() {
   enc.attachSingleEdge(32, 33);
   enc.setCount(0);
   //initialise epaper display 
-  epaper.init(115200);
+  epaper.init(9600);
   epaper.setRotation(3);
   bootAnimation();
   epaper.refresh();
@@ -46,7 +46,7 @@ void bootAnimation(){
     epaper.setCursor(28, 66);
     epaper.print("starting up");
   }while (epaper.nextPage());
-  delay(100);
+  delay(500);
 
   // animated dots -thx chatgpt i could enver code this 
   for (int i = 0; i < 3; i++) {
@@ -60,7 +60,7 @@ void bootAnimation(){
                      : epaper.drawCircle(cx, dotY, dotRadius, GxEPD_BLACK);
       }
     } while (epaper.nextPage());
-    delay(150);
+    delay(500);
   }
 }
 
@@ -97,12 +97,9 @@ void makeBtnDo(int btnindex){
           }else if(strcmp(selectedItem, "Sound FX") == 0){
             soundEffects = !soundEffects;
             Serial.printf("SoundFX is now %s\n", soundEffects ? "ON" : "OFF");
-          }else if(strcmp(selectedItem, "Enable Shuffle") == 0){
+          }else if(strcmp(selectedItem, "Shuffle") == 0){
             shuffleEnabled = true;
-            Serial.println("shuffle is now enabled");
-          }else if(strcmp(selectedItem, "Enable Disabled") == 0){
-            shuffleEnabled = false;
-            Serial.println("shuffle is now disabled");
+            Serial.printf("Shuffle is now %s\n", shuffleEnabled ? "ON" : "OFF");
           }
           subMenuSystem();
         }
@@ -118,16 +115,12 @@ void home(){
   epaper.setFullWindow();
   epaper.firstPage();
   do{
-    epaper.clearScreen();
-    delay(500);
-    epaper.fillScreen(GxEPD_BLACK);
-    delay(500);
     epaper.fillScreen(GxEPD_WHITE);
     epaper.drawLine(30-6, 0, 30-6, 200, GxEPD_BLACK);
     drawVerticalText("home", 4, 0 , 20);
     epaper.drawLine(24, 200-50, 200, 200-50, GxEPD_BLACK);
-
   }while (epaper.nextPage());
+  delay(500);
 }
 
 void drawVerticalText(const char* text, int16_t x, int16_t yStart, int16_t spacing) {
@@ -199,7 +192,7 @@ void menuSystem(){
     }while (epaper.nextPage());
 
     //reset hand if page has been changed
-    menu.lastSelected = 1;
+    menu.lastSelected = -1;
     oldPos = 0;
     updateMenuHand(0);
   }
@@ -214,10 +207,8 @@ void subMenuSystem(){ //thx chatgpt
   epaper.firstPage();
   do {
     epaper.fillScreen(GxEPD_WHITE);
-
     //divider
     epaper.drawLine(30-6, 0, 30-6, 200, GxEPD_BLACK);
-
     epaper.setTextSize(2);
     for (int i = 0; i < activeSubmenu.length; i++){
       int y = 20 + i * 30;
@@ -236,6 +227,22 @@ void invertSubmenu(int index, bool highlight){
   int y = 20 + index * 30 - 5;
   int w = 160;
   int h = 25;
+
+  //testing stuff
+  if (index < 0 || index >= 6) {
+    Serial.println("error: submenu index out of bounds");
+    return;
+  }
+
+  if (currentSubmenuIndex < 0 || currentSubmenuIndex >= 6) {
+    Serial.println("error: currentSubmenuIndex out of bounds");
+    return;
+  }
+
+  if (submenus[currentSubmenuIndex].subMenuItems == nullptr) {
+    Serial.println("error: submenu label array is null");
+    return; 
+  }
 
   epaper.setPartialWindow(30, y, w, h);
   epaper.firstPage();
@@ -287,6 +294,10 @@ void loop() {
       Serial.printf("page change from %d to %d\n", menu.currentPage, newPage);
       menu.lastPage = menu.currentPage;
       menu.currentPage = newPage;
+
+      int handPosOldPage = menu.lastSelected % 3;
+      int handPosNewPage = newPage;
+
       menuSystem();
     }
 

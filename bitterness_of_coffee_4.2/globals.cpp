@@ -18,7 +18,7 @@ menuState menu = {
 
 subMenuState submenus[6] = { //lil help from chatgpt thx :)
   { {"Playlist 1", "Playlist 2", "Back"}, 3, 0, -1, -1 },
-  { {"Enable Shuffle", "Disable Shuffle", "Back"}, 3, 0, -1, -1 },
+  { {"Shuffle", "Back"}, 2, 0, -1, -1 },
   { {"Track 1", "Track 2", "Track 3", "Back"}, 4, 0, -1, -1 },
   { {"Bluetooth", "Sound FX", "Reset", "Back"}, 4, 0, -1, -1 },
   { {"Dark", "Light", "Back"}, 3, 0, -1, -1 },
@@ -30,7 +30,7 @@ uiState ui = {
   ui.SCREEN_HOME,
   false,
   0,
-  5UL * 60 * 1000 //5-mins
+  5UL * 60 * 1000 //5-mins *60
 };
 
 // IO PINS
