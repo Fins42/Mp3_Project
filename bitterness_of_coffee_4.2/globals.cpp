@@ -42,6 +42,7 @@ const int btnnum = 3;
 bool shuffleEnabled = false;
 bool soundEffects = true;
 bool bluetoothEnabled = false;
+bool darkMode = false;
 
 //BTN STUFF
 int btnstate[3] = {0};

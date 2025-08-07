@@ -57,7 +57,11 @@ extern const int btnnum;
 extern bool shuffleEnabled;
 extern bool soundEffects;
 extern bool bluetoothEnabled;
+extern bool darkMode;
 
+//colour inversion macro -chatgpts help thx
+#define COLOR(c) ((darkMode && ((c) == GxEPD_WHITE)) ? GxEPD_BLACK : \
+                  (darkMode && ((c) == GxEPD_BLACK)) ? GxEPD_WHITE : (c))
 
 //button stuff//
 extern int btnstate[3];

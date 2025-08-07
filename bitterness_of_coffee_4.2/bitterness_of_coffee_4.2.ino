@@ -40,8 +40,8 @@ void bootAnimation(){
   epaper.setFullWindow();
   epaper.firstPage();
   do{
-    epaper.fillScreen(GxEPD_WHITE);
-    epaper.setTextColor(GxEPD_BLACK);
+    epaper.fillScreen(COLOR(GxEPD_WHITE));
+    epaper.setTextColor(COLOR(GxEPD_BLACK));
     epaper.setTextSize(2);
     epaper.setCursor(28, 66);
     epaper.print("starting up");
@@ -53,11 +53,11 @@ void bootAnimation(){
     epaper.setPartialWindow(dotX - dotRadius - 2, dotY - dotRadius - 2, 3 * 15 + dotRadius * 2, dotRadius * 2 + 4);
     epaper.firstPage();
     do {
-      epaper.fillScreen(GxEPD_WHITE);
+      epaper.fillScreen(COLOR(GxEPD_WHITE));
       for (int j = 0; j < 3; j++) {
         int cx = dotX + j * 15;
-        (j == i % 3) ? epaper.fillCircle(cx, dotY, dotRadius, GxEPD_BLACK)
-                     : epaper.drawCircle(cx, dotY, dotRadius, GxEPD_BLACK);
+        (j == i % 3) ? epaper.fillCircle(cx, dotY, dotRadius, COLOR(GxEPD_BLACK))
+                     : epaper.drawCircle(cx, dotY, dotRadius, COLOR(GxEPD_BLACK));
       }
     } while (epaper.nextPage());
     delay(500);
@@ -100,6 +100,12 @@ void makeBtnDo(int btnindex){
           }else if(strcmp(selectedItem, "Shuffle") == 0){
             shuffleEnabled = true;
             Serial.printf("Shuffle is now %s\n", shuffleEnabled ? "ON" : "OFF");
+          }else if(strcmp(selectedItem, "Dark") == 0){
+            darkMode = true;
+            Serial.printf("Dark mode is now %s\n", darkMode ? "ON" : "OFF");
+          }else if(strcmp(selectedItem, "Light") == 0){
+            darkMode = false;
+            Serial.printf("Dark mode is now %s\n", darkMode ? "ON" : "OFF");
           }
           subMenuSystem();
         }
@@ -115,10 +121,10 @@ void home(){
   epaper.setFullWindow();
   epaper.firstPage();
   do{
-    epaper.fillScreen(GxEPD_WHITE);
-    epaper.drawLine(30-6, 0, 30-6, 200, GxEPD_BLACK);
+    epaper.fillScreen(COLOR(GxEPD_WHITE));
+    epaper.drawLine(30-6, 0, 30-6, 200, COLOR(GxEPD_BLACK));
     drawVerticalText("home", 4, 0 , 20);
-    epaper.drawLine(24, 200-50, 200, 200-50, GxEPD_BLACK);
+    epaper.drawLine(24, 200-50, 200, 200-50, COLOR(GxEPD_BLACK));
   }while (epaper.nextPage());
   delay(500);
 }
@@ -142,26 +148,28 @@ void updateMenuHand(int newPos){
     epaper.setPartialWindow(0, 0, 22, 200);
     epaper.firstPage();
     do{
-      epaper.fillRect(6, 0, 30, 200, GxEPD_WHITE);
+      epaper.fillRect(6, 0, 30, 200, COLOR(GxEPD_WHITE));
     }while (epaper.nextPage());
     //erase hand - bye bye thanks for all the fish
     epaper.setPartialWindow(100, 0, 100, 200);
     epaper.firstPage();
     do{
-      epaper.fillRect(100, 4 + (menu.lastSelected % 3) * 64, 100, 64, GxEPD_WHITE);
+      epaper.fillRect(100, 4 + (menu.lastSelected % 3) * 64, 100, 64, COLOR(GxEPD_WHITE));
     }while (epaper.nextPage());
   }
   //draw hand
   epaper.setPartialWindow(100, 0, 100, 200);
   epaper.firstPage();
   do {
-    epaper.drawInvertedBitmap(100, 4 +(newPos % 3) * 64, BM_hand, 100, 64, GxEPD_BLACK);
+    epaper.fillScreen(COLOR(GxEPD_WHITE));
+    epaper.drawInvertedBitmap(100, 4 +(newPos % 3) * 64, BM_hand, 100, 64, COLOR(GxEPD_BLACK));
   }while (epaper.nextPage());
 
   //vertical text
   epaper.setPartialWindow(0, 0, 22, 200);
   epaper.firstPage();
   do{
+    epaper.fillScreen(COLOR(GxEPD_WHITE));
     drawVerticalText(menu.items[newPos], 4, 0, 20);
   }while (epaper.nextPage());
 
@@ -174,19 +182,19 @@ void menuSystem(){
     Serial.println("menuSystem running");
     epaper.clearScreen();
     epaper.setFullWindow();
-    epaper.setTextColor(GxEPD_BLACK);
-    epaper.fillScreen(GxEPD_WHITE);
     epaper.firstPage();
     do{
-        epaper.drawLine(30-6, 0, 30-6, 200, GxEPD_BLACK);
+        epaper.setTextColor(COLOR(GxEPD_BLACK));
+        epaper.fillScreen(COLOR(GxEPD_WHITE));
+        epaper.drawLine(30-6, 0, 30-6, 200, COLOR(GxEPD_BLACK));
 
         if (menu.currentPage == 1){
           for (int i = 3; i < 6; i++){
-            epaper.drawInvertedBitmap(30, (i - 3) * 64 +4, BM_allArray[i], 64, 64, GxEPD_BLACK);
+            epaper.drawInvertedBitmap(30, (i - 3) * 64 +4, BM_allArray[i], 64, 64, COLOR(GxEPD_BLACK));
           }
         }else{
           for (int i = 0; i < 3; i++){
-          epaper.drawInvertedBitmap(30, i * 64 +4, BM_allArray[i], 64, 64, GxEPD_BLACK);
+          epaper.drawInvertedBitmap(30, i * 64 +4, BM_allArray[i], 64, 64, COLOR(GxEPD_BLACK));
           }
         }
     }while (epaper.nextPage());
@@ -206,13 +214,13 @@ void subMenuSystem(){ //thx chatgpt
   epaper.setFullWindow();
   epaper.firstPage();
   do {
-    epaper.fillScreen(GxEPD_WHITE);
+    epaper.fillScreen(COLOR(GxEPD_WHITE));
     //divider
-    epaper.drawLine(30-6, 0, 30-6, 200, GxEPD_BLACK);
+    epaper.drawLine(30-6, 0, 30-6, 200, COLOR(GxEPD_BLACK));
     epaper.setTextSize(2);
     for (int i = 0; i < activeSubmenu.length; i++){
       int y = 20 + i * 30;
-      epaper.setTextColor(GxEPD_BLACK);
+      epaper.setTextColor(COLOR(GxEPD_BLACK));
       epaper.setCursor(40, y);
       epaper.print(activeSubmenu.subMenuItems[i]);
     }
@@ -248,11 +256,11 @@ void invertSubmenu(int index, bool highlight){
   epaper.firstPage();
   do {
     if (highlight) {
-      epaper.fillRect(30, y, w, h, GxEPD_BLACK);
-      epaper.setTextColor(GxEPD_WHITE);
+      epaper.fillRect(30, y, w, h, COLOR(GxEPD_BLACK));
+      epaper.setTextColor(COLOR(GxEPD_WHITE));
     } else {
-      epaper.fillRect(30, y, w, h, GxEPD_WHITE);
-      epaper.setTextColor(GxEPD_BLACK);
+      epaper.fillRect(30, y, w, h, COLOR(GxEPD_WHITE));
+      epaper.setTextColor(COLOR(GxEPD_BLACK));
     }
     epaper.setCursor(40, y + 5);
     epaper.print(submenus[currentSubmenuIndex].subMenuItems[index]);
