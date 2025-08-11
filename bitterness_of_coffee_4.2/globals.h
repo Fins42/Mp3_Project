@@ -6,7 +6,7 @@
 #include <ctype.h>
 #include <Wire.h>
 
-//setup display (epaper) scl=18 sda=23 (misslabled on board)
+//setup display (epaper) din=18 clk=23 
 extern GxEPD2_BW<GxEPD2_154_D67, GxEPD2_154_D67::HEIGHT> epaper;
 
 //oled

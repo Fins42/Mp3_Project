@@ -1,6 +1,6 @@
 #include "globals.h"
 
-//EPAPER
+//EPAPER din=18 clk=23 
 GxEPD2_BW<GxEPD2_154_D67, GxEPD2_154_D67::HEIGHT> epaper(GxEPD2_154_D67(/*CS*/ 5, /*DC*/ 4, /*RST*/ 19, /*BUSY*/ 15));
 //OLED
 Adafruit_SSD1306 oled(128, 32, &Wire, -1);
@@ -24,13 +24,13 @@ subMenuState submenus[6] = { //lil help from chatgpt thx :)
   { {"Dark", "Light", "Back"}, 3, 0, -1, -1 },
   { {"v4.2", "Credits", "Back"}, 3, 0, -1, -1 }
 };
-int currentSubmenuIndex = 0; // globally tracks which submenu is active
+int currentSubmenuIndex = 0; 
 
 uiState ui = {
   ui.SCREEN_HOME,
   false,
   0,
-  5UL * 60 * 1000 //5-mins *60
+  5UL * 60 * 1000 //5-mins 
 };
 
 // IO PINS

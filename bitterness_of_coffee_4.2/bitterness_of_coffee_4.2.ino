@@ -206,7 +206,7 @@ void menuSystem(){
   }
 }
 
-void subMenuSystem(){ //thx chatgpt 
+void subMenuSystem(){  
   if (ui.currentScreen != uiState::SCREEN_SUBMENU) return;
 
   subMenuState& activeSubmenu = submenus[currentSubmenuIndex];
@@ -223,6 +223,7 @@ void subMenuSystem(){ //thx chatgpt
       epaper.setTextColor(COLOR(GxEPD_BLACK));
       epaper.setCursor(40, y);
       epaper.print(activeSubmenu.subMenuItems[i]);
+      epaper.printf(" %s", activeSubmenu.subMenuItems[i] ? "ON" : "OFF");
     }
     drawVerticalText(menu.items[currentSubmenuIndex], 4, 0, 20);
   }while (epaper.nextPage());
@@ -264,6 +265,7 @@ void invertSubmenu(int index, bool highlight){
     }
     epaper.setCursor(40, y + 5);
     epaper.print(submenus[currentSubmenuIndex].subMenuItems[index]);
+    epaper.printf(" %s", submenus[currentSubmenuIndex].subMenuItems[index] ? "ON" : "OFF");
   } while (epaper.nextPage());
 }
 
