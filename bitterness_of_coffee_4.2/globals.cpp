@@ -16,14 +16,34 @@ menuState menu = {
   -1
 };
 
-subMenuState submenus[6] = { //lil help from chatgpt thx :)
-  { {"Playlist 1", "Playlist 2", "Back"}, 3, 0, -1, -1 },
-  { {"Shuffle", "Back"}, 2, 0, -1, -1 },
-  { {"Track 1", "Track 2", "Track 3", "Back"}, 4, 0, -1, -1 },
-  { {"Bluetooth", "Sound FX", "Reset", "Back"}, 4, 0, -1, -1 },
-  { {"Dark", "Light", "Back"}, 3, 0, -1, -1 },
-  { {"v4.2", "Credits", "Back"}, 3, 0, -1, -1 }
+subMenuState submenus[6] = { // lil help from chatgpt thx :)
+    //playlists
+  { {"Playlist 1", "Playlist 2", "Back"},
+    { nullptr, nullptr, nullptr },
+    3, 0, -1, -1 },
+    //shuffle
+  { {"Shuffle", "Back"},
+    { &shuffleEnabled, nullptr },
+    2, 0, -1, -1 },
+    //liked
+  { {"Track 1", "Track 2", "Track 3", "Back"},
+    { nullptr, nullptr, nullptr, nullptr },
+    4, 0, -1, -1 },
+    //settings
+  { {"Bluetooth", "Sound FX", "Reset", "Back"},
+    { &bluetoothEnabled, &soundEffects, nullptr, nullptr },
+    4, 0, -1, -1 },
+    //theme
+  { {"Dark", "Light", "Back"},
+    { &darkMode, &darkMode, nullptr }, // both share same bool
+    3, 0, -1, -1 },
+    //about
+  { {"v4.2", "Credits", "Back"},
+    { nullptr, nullptr, nullptr },
+    3, 0, -1, -1 }
 };
+
+
 int currentSubmenuIndex = 0; 
 
 uiState ui = {

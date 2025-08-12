@@ -27,6 +27,7 @@ extern menuState menu;
 
 struct subMenuState{
   const char* subMenuItems[6];
+  bool* subMenuBools[6];
   const int length;
   int currentPage;
   int lastPage;

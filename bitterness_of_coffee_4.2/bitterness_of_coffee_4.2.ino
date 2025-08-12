@@ -82,33 +82,51 @@ void makeBtnDo(int btnindex){
         currentSubmenuIndex = menu.lastSelected;
         ui.currentScreen = uiState::SCREEN_SUBMENU;
         subMenuSystem();
-      } else if(ui.currentScreen == uiState::SCREEN_SUBMENU){
+      }else if(ui.currentScreen == uiState::SCREEN_SUBMENU){
         subMenuState& activeSubmenu = submenus[currentSubmenuIndex];
-        const char* selectedItem = activeSubmenu.subMenuItems[activeSubmenu.lastSelected];
-
-        if(strcmp(selectedItem, "Back") == 0){
-          ui.currentScreen = uiState::SCREEN_MENU;
-          menuSystem();
-        }else {
-          //toggle flags
-          if(strcmp(selectedItem, "Bluetooth") == 0){
-            bluetoothEnabled = !bluetoothEnabled;
-            Serial.printf("Bluetooth is now %s\n", bluetoothEnabled ? "ON" : "OFF");
-          }else if(strcmp(selectedItem, "Sound FX") == 0){
-            soundEffects = !soundEffects;
-            Serial.printf("SoundFX is now %s\n", soundEffects ? "ON" : "OFF");
-          }else if(strcmp(selectedItem, "Shuffle") == 0){
-            shuffleEnabled = true;
-            Serial.printf("Shuffle is now %s\n", shuffleEnabled ? "ON" : "OFF");
-          }else if(strcmp(selectedItem, "Dark") == 0){
-            darkMode = true;
-            Serial.printf("Dark mode is now %s\n", darkMode ? "ON" : "OFF");
-          }else if(strcmp(selectedItem, "Light") == 0){
-            darkMode = false;
-            Serial.printf("Dark mode is now %s\n", darkMode ? "ON" : "OFF");
-          }
-          subMenuSystem();
+        int sel = activeSubmenu.lastSelected; //submenu on/off bool toggles done by mr.gpt
+        
+        // safety check
+        if (sel < 0 || sel >= activeSubmenu.length) {
+          Serial.println("No valid submenu selection");
+          break;
         }
+        const char* selectedItem = activeSubmenu.subMenuItems[sel];
+        bool* settingPtr = activeSubmenu.subMenuBools[sel];
+
+        if (settingPtr != nullptr) {
+          // Items that map to a bool: toggle or handle forced modes
+          if (strcmp(selectedItem, "Light") == 0) {
+            *settingPtr = false; // force light
+          } else if (strcmp(selectedItem, "Dark") == 0) {
+            *settingPtr = true;  // force dark
+          } else {
+            *settingPtr = !*settingPtr; // normal toggle
+          }
+          Serial.printf("%s is now %s\n", selectedItem, (*settingPtr ? "ON" : "OFF"));
+        }else {
+          // Non-bool items: handle by label
+          if (strcmp(selectedItem, "Back") == 0) {
+            ui.currentScreen = uiState::SCREEN_MENU;
+            menuSystem();
+            return;
+          }else if (strcmp(selectedItem, "Reset") == 0) {
+            // Reset defaults (example)
+            shuffleEnabled   = false;
+            soundEffects     = true;
+            bluetoothEnabled = false;
+            darkMode         = false;
+            Serial.println("Settings reset to defaults.");
+          }else if (strncmp(selectedItem, "Playlist", 8) == 0) {
+            // Example playlist handler
+            Serial.printf("Loading %s...\n", selectedItem);
+            // TODO: implement playlist load
+          }
+          else {
+            Serial.printf("Selected (no-bool): %s\n", selectedItem);
+          }
+        }
+        subMenuSystem();
       }
       break;
     default:
@@ -223,7 +241,14 @@ void subMenuSystem(){
       epaper.setTextColor(COLOR(GxEPD_BLACK));
       epaper.setCursor(40, y);
       epaper.print(activeSubmenu.subMenuItems[i]);
-      epaper.printf(" %s", activeSubmenu.subMenuItems[i] ? "ON" : "OFF");
+
+      bool* ptr = activeSubmenu.subMenuBools[i];
+      if (ptr != nullptr) {
+        bool val = *ptr;
+        // "Light" displays the inverse of darkMode
+        if (strcmp(activeSubmenu.subMenuItems[i], "Light") == 0) val = !val;
+        epaper.printf(" %s", val ? "ON" : "OFF");
+      }
     }
     drawVerticalText(menu.items[currentSubmenuIndex], 4, 0, 20);
   }while (epaper.nextPage());
@@ -253,6 +278,8 @@ void invertSubmenu(int index, bool highlight){
     return; 
   }
 
+  subMenuState& activeSubmenu = submenus[currentSubmenuIndex];
+
   epaper.setPartialWindow(30, y, w, h);
   epaper.firstPage();
   do {
@@ -265,7 +292,13 @@ void invertSubmenu(int index, bool highlight){
     }
     epaper.setCursor(40, y + 5);
     epaper.print(submenus[currentSubmenuIndex].subMenuItems[index]);
-    epaper.printf(" %s", submenus[currentSubmenuIndex].subMenuItems[index] ? "ON" : "OFF");
+
+    bool* ptr = activeSubmenu.subMenuBools[index];
+    if (ptr != nullptr) {
+      bool val = *ptr;
+      if (strcmp(activeSubmenu.subMenuItems[index], "Light") == 0) val = !val;
+      epaper.printf(" %s", val ? "ON" : "OFF");
+    }
   } while (epaper.nextPage());
 }
 
