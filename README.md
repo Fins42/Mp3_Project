@@ -7,6 +7,10 @@ This is my first actual project that im sticking to -i barely know how to code (
 
 <img src="https://github.com/Fins42/Mp3_Project/blob/main/Images/githubImg1.jpg" alt="mp3 player img sorta looks like a panda" style="width:40%; height:auto;">
 
+Sketch          |  Current(ish) Version
+:-------------------------:|:-------------------------:
+![](https://github.com/Fins42/Pocket-Player/blob/main/Images/mp32.jpg)  |  ![](https://github.com/Fins42/Mp3_Project/blob/main/Images/githubImg1.jpg)
+
 **_what components im useing:_**
 
 - ESP32 DEV modual
